@@ -1,12 +1,11 @@
-// app/(tabs)/_layout.tsx
-import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router'
+import { Ionicons } from '@expo/vector-icons'
 
 export default function TabLayout() {
   return (
     <Tabs>
       <Tabs.Screen
-        name="home"
+        name="index" // ← home → index로 변경
         options={{
           title: '홈',
           headerShown: false,
@@ -36,5 +35,5 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
-  );
+  )
 }
