@@ -1,15 +1,24 @@
-import { API_URL } from '@env';
 import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
-
+import Constants from 'expo-constants';
 
 export default function ApiTestScreen() {
+  const API_URL = Constants.expoConfig?.extra?.API_URL;
   const [data, setData] = useState('');
 
   useEffect(() => {
-    fetch(`${API_URL}`) 
+    if (!API_URL) {
+      setData("❌ API_URL이 설정되지 않았습니다.");
+      return;
+    }
+
+    fetch(`${API_URL}/subjects`)
       .then((res) => res.text())
-      .then((msg) => setData(msg));
+      .then((msg) => setData(msg))
+      .catch((err) => {
+        console.error("❌ API 요청 실패:", err);
+        setData("❌ API 요청 실패");
+      });
   }, []);
 
   return (
