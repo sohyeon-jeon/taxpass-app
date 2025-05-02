@@ -50,7 +50,11 @@ export default function TaxLawScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>세법 기출문제</Text>
+      {/* 과목명 네모 박스 */}
+      <View style={styles.subjectBox}>
+        <Text style={styles.subjectText}>세법학개론</Text>
+      </View>
+
       {loading ? (
         <Text>불러오는 중...</Text>
       ) : (
@@ -79,19 +83,58 @@ export default function TaxLawScreen() {
   );
 }
 
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 16 },
-  questionCard: {
-    backgroundColor: '#f9f9f9',
-    padding: 16,
-    marginBottom: 16,
-    borderRadius: 10,
-    borderColor: '#ddd',
+  subjectBox: {
     borderWidth: 1,
+    borderColor: '#000',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignSelf: 'center', 
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
   },
-  questionText: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
-  choiceText: { fontSize: 15, marginBottom: 4 },
-  answer: { marginTop: 8, fontWeight: 'bold', color: 'green' },
-  explanation: { marginTop: 4, fontStyle: 'italic', color: '#555' },
+  subjectText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  container: {
+    flex: 1,
+    padding: 24,
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  questionCard: {
+    marginBottom: 32,
+  },
+  questionText: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    lineHeight: 26,
+    marginBottom: 12,
+    fontFamily: 'serif', // 앱에서는 적용 안될 수도 있음
+  },
+  choiceText: {
+    fontSize: 16,
+    lineHeight: 28,
+    marginBottom: 6,
+    fontFamily: 'serif',
+  },
+  answer: {
+    fontSize: 15,
+    marginTop: 12,
+    fontWeight: 'bold',
+    color: 'green',
+  },
+  explanation: {
+    fontSize: 14,
+    marginTop: 6,
+    color: '#333',
+    fontStyle: 'italic',
+  },
 });
