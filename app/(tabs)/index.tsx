@@ -1,26 +1,55 @@
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import Constants from 'expo-constants';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
 
-const years = ['2024', '2023', '2022', '2021', '2020'];
+const API_URL = Constants.expoConfig?.extra?.API_URL;
 
-export default function index() {
-  const handlePress = (year: string) => {
-    console.log(`${year}년 기출문제 클릭됨`);
-    // TODO: 해당 연도 문제 리스트 화면으로 이동 (라우팅 추가 예정)
+type Subject = {
+  id: number;
+  name: string;
+};
+
+export default function Index() {
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_URL}/subjects`)
+      .then((res) => res.json())
+      .then((data) => {
+        setSubjects(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("❌ API 요청 실패:", err);
+        setSubjects([]);
+        setLoading(false);
+      });
+  }, []);
+
+  const router = useRouter();
+
+  const handlePress = (subjectName: string) => {
+    router.push("/questions/taxLaw");
   };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>연도별 기출문제</Text>
-      <FlatList
-        data={years}
-        keyExtractor={(item) => item}
-        contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card} onPress={() => handlePress(item)}>
-            <Text style={styles.cardText}>{item}년 기출문제</Text>
-          </TouchableOpacity>
-        )}
-      />
+      <Text style={styles.title}>과목별 기출문제</Text>
+      {loading ? (
+        <Text>불러오는 중...</Text>
+      ) : (
+        <FlatList
+          data={subjects}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.list}
+          renderItem={({ item }) => (
+            <TouchableOpacity style={styles.card} onPress={() => handlePress(item.name)}>
+              <Text style={styles.cardText}>{item.name}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      )}
     </View>
   );
 }
