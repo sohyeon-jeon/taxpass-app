@@ -31,7 +31,7 @@ export default function Index() {
   const router = useRouter();
 
   const handlePress = (subjectName: string) => {
-    router.push("/questions/taxLaw");
+    router.push("/(tabs)/questions/taxLaw");
   };
   return (
     <View style={styles.container}>
