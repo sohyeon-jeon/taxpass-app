@@ -2,7 +2,7 @@ import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { useEffect, useState } from 'react';
 import Constants from 'expo-constants';
 
-const API_URL = Constants.expoConfig?.extra?.API_URL;
+const EXPO_PUBLIC_API_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_API_URL;
 
 type Choice = {
   choice_index: number;
@@ -26,7 +26,7 @@ export default function TaxLawScreen() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/questions/detail`)
+    fetch(`${EXPO_PUBLIC_API_URL}/questions/detail`)
       .then((res) => res.json())
       .then((data) => {
         const parsed: ParsedQuestion[] = data.map((item: any[]) => ({
