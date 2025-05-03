@@ -4,32 +4,16 @@ import Constants from 'expo-constants';
 
 const EXPO_PUBLIC_API_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_API_URL;
 
-type Choice = {
-  choice_index: number;
-  type: string;
-  content: string;
-};
-
-type ParsedQuestion = {
-  id: number;
-  number: string;
-  year: number;
-  examType: string;
-  questionText: string;
-  choices: Choice[];
-  correctAnswer: string;
-  explanation: string;
-};
-
 export default function TaxLawScreen() {
-  const [questions, setQuestions] = useState<ParsedQuestion[]>([]);
+  const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(`${EXPO_PUBLIC_API_URL}/questions/detail`)
       .then((res) => res.json())
       .then((data) => {
-        const parsed: ParsedQuestion[] = data.map((item: any[]) => ({
+        console.log('data',data)
+        const parsed = data.map((item) => ({
           id: item[0],
           number: item[2],
           year: item[3],
@@ -50,7 +34,6 @@ export default function TaxLawScreen() {
 
   return (
     <View style={styles.container}>
-      {/* 과목명 네모 박스 */}
       <View style={styles.subjectBox}>
         <Text style={styles.subjectText}>세법학개론</Text>
       </View>
@@ -66,11 +49,45 @@ export default function TaxLawScreen() {
               <Text style={styles.questionText}>
                 {item.number}. ({item.year} {item.examType}) {item.questionText}
               </Text>
-              {item.choices.map((choice) => (
-                <Text key={choice.choice_index} style={styles.choiceText}>
-                  {`(${choice.choice_index}) ${choice.content}`}
-                </Text>
-              ))}
+
+              {/* Table Header */}
+              {item.choices[0]?.type === 'table' && (
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableSymbol}></Text> {/* 테이블헤더와 선지 정렬을 위해 빈칸 추가*/}
+                  {Object.keys(item.choices[0].content)
+                    .filter((k) => k !== '번호')
+                    .map((header, idx) => (
+                      <Text key={idx} style={[styles.tableHeaderCell, { width: 140 }]}>
+                        {header}
+                      </Text>
+                    ))}
+                </View>
+              )}
+
+              {/* Table Rows */}
+              {item.choices.map((choice, index) => {
+                if (choice.type === 'table') {
+                  return (
+                    <View key={index} style={styles.tableRow}>
+                      <Text style={styles.tableSymbol}>{choice.content['번호']}</Text>
+                      {Object.entries(choice.content)
+                        .filter(([key]) => key !== '번호')
+                        .map(([key, value], idx) => (
+                          <Text key={idx} style={[styles.tableCell, { width: 140 }]}>
+                            {value}
+                          </Text>
+                        ))}
+                    </View>
+                  );
+                } else {
+                  return (
+                    <Text key={choice.choice_index} style={styles.choiceText}>
+                      {`(${choice.choice_index}) ${choice.content}`}
+                    </Text>
+                  );
+                }
+              })}
+
               <Text style={styles.answer}>✅ 정답: {item.correctAnswer}</Text>
               {item.explanation && (
                 <Text style={styles.explanation}>📘 해설: {item.explanation}</Text>
@@ -83,31 +100,23 @@ export default function TaxLawScreen() {
   );
 }
 
-
 const styles = StyleSheet.create({
-  subjectBox: {
-    borderWidth: 1,
-    borderColor: '#000',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    alignSelf: 'center', 
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
-  },
-  subjectText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
   container: {
     flex: 1,
     padding: 24,
     backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 22,
+  subjectBox: {
+    borderWidth: 1,
+    borderColor: '#000',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignSelf: 'center',
+    marginBottom: 24,
+  },
+  subjectText: {
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20,
   },
   questionCard: {
     marginBottom: 32,
@@ -117,13 +126,36 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     lineHeight: 26,
     marginBottom: 12,
-    fontFamily: 'serif', // 앱에서는 적용 안될 수도 있음
+    fontFamily: 'serif',
   },
   choiceText: {
     fontSize: 16,
     lineHeight: 28,
     marginBottom: 6,
     fontFamily: 'serif',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  tableSymbol: {
+    width: 28,
+    fontSize: 14,
+    fontFamily: 'serif',
+    textAlign: 'center',
+    marginRight: 8,
+  },
+  tableHeaderCell: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    fontFamily: 'serif',
+    textAlign: 'center',
+  },
+  tableCell: {
+    fontSize: 15,
+    fontFamily: 'serif',
+    textAlign: 'center',
   },
   answer: {
     fontSize: 15,
