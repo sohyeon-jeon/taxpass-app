@@ -1,25 +1,26 @@
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Pressable } from 'react-native';
 import { useEffect, useState } from 'react';
 import Constants from 'expo-constants';
 
 const EXPO_PUBLIC_API_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_API_URL;
+const circledNumbers = ['①', '②', '③', '④', '⑤'];
 
 export default function TaxLawScreen() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedChoices, setSelectedChoices] = useState({});
 
   useEffect(() => {
     fetch(`${EXPO_PUBLIC_API_URL}/questions/detail`)
       .then((res) => res.json())
       .then((data) => {
-        console.log('data',data)
         const parsed = data.map((item) => ({
           id: item[0],
           number: item[2],
           year: item[3],
           examType: item[4],
           questionText: item[5],
-          choices: JSON.parse(item[7] ?? "[]"),
+          choices: JSON.parse(item[7] ?? '[]'),
           correctAnswer: item[8],
           explanation: item[9],
         }));
@@ -27,10 +28,14 @@ export default function TaxLawScreen() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("❌ 세법 문제 로딩 실패:", err);
+        console.error('❌ 세법 문제 로딩 실패:', err);
         setLoading(false);
       });
   }, []);
+
+  const handleSelect = (questionId, choiceIndex) => {
+    setSelectedChoices((prev) => ({ ...prev, [questionId]: choiceIndex }));
+  };
 
   return (
     <View style={styles.container}>
@@ -50,10 +55,10 @@ export default function TaxLawScreen() {
                 {item.number}. ({item.year} {item.examType}) {item.questionText}
               </Text>
 
-              {/* Table Header */}
+              {/* 테이블형 선지: 헤더 */}
               {item.choices[0]?.type === 'table' && (
                 <View style={styles.tableRow}>
-                  <Text style={styles.tableSymbol}></Text> {/* 테이블헤더와 선지 정렬을 위해 빈칸 추가*/}
+                  <View style={styles.symbolBoxPlaceholder} />
                   {Object.keys(item.choices[0].content)
                     .filter((k) => k !== '번호')
                     .map((header, idx) => (
@@ -64,26 +69,51 @@ export default function TaxLawScreen() {
                 </View>
               )}
 
-              {/* Table Rows */}
+              {/* 선지 렌더링 */}
               {item.choices.map((choice, index) => {
+                const symbol = circledNumbers[index] ?? `(${index + 1})`;
+                const selected = selectedChoices[item.id] === index;
+
+                const symbolView = (
+                  <View
+                    style={[
+                      styles.symbolBox,
+                      selected && styles.symbolBoxSelected,
+                    ]}
+                  >
+                    <Text style={selected ? styles.symbolTextSelected : styles.symbolText}>
+                      {symbol}
+                    </Text>
+                  </View>
+                );
+
                 if (choice.type === 'table') {
                   return (
-                    <View key={index} style={styles.tableRow}>
-                      <Text style={styles.tableSymbol}>{choice.content['번호']}</Text>
+                    <Pressable
+                      key={index}
+                      onPress={() => handleSelect(item.id, index)}
+                      style={styles.tableRow}
+                    >
+                      {symbolView}
                       {Object.entries(choice.content)
                         .filter(([key]) => key !== '번호')
-                        .map(([key, value], idx) => (
+                        .map(([_, value], idx) => (
                           <Text key={idx} style={[styles.tableCell, { width: 140 }]}>
                             {value}
                           </Text>
                         ))}
-                    </View>
+                    </Pressable>
                   );
                 } else {
                   return (
-                    <Text key={choice.choice_index} style={styles.choiceText}>
-                      {`(${choice.choice_index}) ${choice.content}`}
-                    </Text>
+                    <Pressable
+                      key={choice.choice_index}
+                      onPress={() => handleSelect(item.id, index)}
+                      style={styles.choiceRow}
+                    >
+                      {symbolView}
+                      <Text style={styles.choiceText}>{choice.content}</Text>
+                    </Pressable>
                   );
                 }
               })}
@@ -128,23 +158,53 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     fontFamily: 'serif',
   },
+  choiceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   choiceText: {
     fontSize: 16,
     lineHeight: 28,
-    marginBottom: 6,
     fontFamily: 'serif',
+  },
+  symbolBox: {
+    width: 18,
+    height: 18,
+    borderRadius: 14,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  symbolBoxSelected: {
+    width: 18,
+    height: 18,
+    borderRadius: 14,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  symbolText: {
+    fontSize: 18,
+    fontFamily: 'serif',
+    color: '#000',
+  },
+  symbolTextSelected: {
+    fontSize: 18,
+    fontFamily: 'serif',
+    color: '#fff',
+  },
+  symbolBoxPlaceholder: {
+    width: 28,
+    height: 28,
+    marginRight: 10,
   },
   tableRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
-  },
-  tableSymbol: {
-    width: 28,
-    fontSize: 14,
-    fontFamily: 'serif',
-    textAlign: 'center',
-    marginRight: 8,
   },
   tableHeaderCell: {
     fontSize: 15,
