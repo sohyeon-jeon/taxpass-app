@@ -75,15 +75,16 @@ export default function TaxLawScreen() {
                 const selected = selectedChoices[item.id] === index;
 
                 const symbolView = (
-                  <View
-                    style={[
-                      styles.symbolBox,
-                      selected && styles.symbolBoxSelected,
-                    ]}
-                  >
-                    <Text style={selected ? styles.symbolTextSelected : styles.symbolText}>
-                      {symbol}
-                    </Text>
+                  <View style={styles.symbolWrapper}>
+                    <View
+                      style={[styles.symbolBox, selected && styles.symbolBoxSelected]}
+                    >
+                      <Text
+                        style={selected ? styles.symbolTextSelected : styles.symbolText}
+                      >
+                        {symbol}
+                      </Text>
+                    </View>
                   </View>
                 );
 
@@ -99,7 +100,7 @@ export default function TaxLawScreen() {
                         .filter(([key]) => key !== '번호')
                         .map(([_, value], idx) => (
                           <Text key={idx} style={[styles.tableCell, { width: 140 }]}>
-                            {value}
+                            {typeof value === 'object' ? JSON.stringify(value) : value}
                           </Text>
                         ))}
                     </Pressable>
@@ -112,7 +113,9 @@ export default function TaxLawScreen() {
                       style={styles.choiceRow}
                     >
                       {symbolView}
-                      <Text style={styles.choiceText}>{choice.content}</Text>
+                      <View style={styles.choiceTextWrapper}>
+                        <Text style={styles.choiceText}>{choice.content}</Text>
+                      </View>
                     </Pressable>
                   );
                 }
@@ -152,47 +155,48 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   questionText: {
-    fontSize: 17,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontFamily: 'serif',
     lineHeight: 26,
     marginBottom: 12,
-    fontFamily: 'serif',
   },
   choiceRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  choiceTextWrapper: {
+    flex: 1,
   },
   choiceText: {
     fontSize: 16,
-    lineHeight: 28,
     fontFamily: 'serif',
+    lineHeight: 26,
+  },
+  symbolWrapper: {
+    width: 30,
+    alignItems: 'flex-start',
+    marginTop: 4,
+    marginRight: 6,
   },
   symbolBox: {
-    width: 18,
-    height: 18,
+    width: 20,
+    height: 20,
     borderRadius: 14,
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
   },
   symbolBoxSelected: {
-    width: 18,
-    height: 18,
-    borderRadius: 14,
     backgroundColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
   },
   symbolText: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: 'serif',
     color: '#000',
   },
   symbolTextSelected: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: 'serif',
     color: '#fff',
   },
@@ -203,7 +207,7 @@ const styles = StyleSheet.create({
   },
   tableRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 8,
   },
   tableHeaderCell: {
