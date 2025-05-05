@@ -1,4 +1,3 @@
-// components/HybridMathJax.tsx
 import React from 'react';
 import { Platform, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
@@ -19,43 +18,56 @@ if (Platform.OS === 'web') {
 type Props = {
   latex: string;
   fontSize?: number;
+  display?: boolean; // 블록 수식 여부
 };
 
-export default function HybridMathJax({ latex, fontSize = 16 }: Props) {
+export default function HybridMathJax({ latex, fontSize = 16, display = false }: Props) {
+  // 모든 플랫폼에서 수식 문자열 정제 처리
+  const cleanedLatex = latex
+    .replace(/\\\\\(/g, '\\(')
+    .replace(/\\\\\)/g, '\\)')
+    .replace(/\\\\\[/g, '\\[')
+    .replace(/\\\\\]/g, '\\]')
+    .replace(/\\\\/g, '\\'); // 이중 백슬래시 제거
+
+  // 웹 (React DOM)
   if (Platform.OS === 'web' && MathJaxContext && MathJax) {
     return (
       <MathJaxContext
-  version={3}
-  config={{
-    loader: { load: ['[tex]/ams'] },
-    tex: { packages: ['base', 'ams'] },
-    chtml: {
-      fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts',
-      displayAlign: 'left',
-      scale: 1,
-    },
-    options: {
-      renderActions: {
-        addMenu: [],
-      },
-    }
-  }}
->
-{/* https://easy-copy-mathjax.nakaken88.com/en/triangle/ */}
-{/* <HybridMathJax latex="\\\text{안녕하세요} \\\triangle\\ \\\text{222다음은 법인세에 대한}" /> */}
-  <MathJax inline>{`\\(${latex}\\)`}</MathJax>
-</MathJaxContext>
+        version={3}
+        config={{
+          loader: { load: ['[tex]/ams'] },
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            packages: ['base', 'ams'],
+          },
+          chtml: {
+            fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts',
+            displayAlign: 'left',
+            scale: 1,
+          },
+          options: {
+            renderActions: { addMenu: [] },
+          },
+        }}
+      >
+        <MathJax inline={!display}>{cleanedLatex}</MathJax>
+      </MathJaxContext>
     );
   }
 
+  // 앱 (iOS / Android)
   if (Platform.OS !== 'web') {
-    const encodedLatex = latex.replace(/\\/g, '\\\\'); // 백슬래시 이스케이프
+    const encodedLatex = cleanedLatex.replace(/\\/g, '\\\\'); // WebView용 이스케이프
+    const tag = display ? '\\[' : '\\(';
+    const closeTag = display ? '\\]' : '\\)';
     const html = `
       <!DOCTYPE html>
       <html>
         <head>
           <meta charset="utf-8">
-          <script type="text/javascript" id="MathJax-script" async
+          <script type="text/javascript" async
             src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
           </script>
           <style>
@@ -64,12 +76,11 @@ export default function HybridMathJax({ latex, fontSize = 16 }: Props) {
               padding: 4px;
               font-size: ${fontSize}px;
               font-family: serif;
-              display: inline;
             }
           </style>
         </head>
         <body>
-          \\(${encodedLatex}\\)
+          ${tag}${encodedLatex}${closeTag}
         </body>
       </html>
     `;
@@ -83,5 +94,6 @@ export default function HybridMathJax({ latex, fontSize = 16 }: Props) {
     );
   }
 
+  // fallback
   return <Text>{latex}</Text>;
 }
