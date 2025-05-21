@@ -22,14 +22,6 @@ type Props = {
 };
 
 export default function HybridMathJax({ latex, fontSize = 16, display = false }: Props) {
-  // 모든 플랫폼에서 수식 문자열 정제 처리
-  const cleanedLatex = latex
-    .replace(/\\\\\(/g, '\\(')
-    .replace(/\\\\\)/g, '\\)')
-    .replace(/\\\\\[/g, '\\[')
-    .replace(/\\\\\]/g, '\\]')
-    .replace(/\\\\/g, '\\'); // 이중 백슬래시 제거
-
   // 웹 (React DOM)
   if (Platform.OS === 'web' && MathJaxContext && MathJax) {
     return (
@@ -52,14 +44,14 @@ export default function HybridMathJax({ latex, fontSize = 16, display = false }:
           },
         }}
       >
-        <MathJax inline={!display}>{cleanedLatex}</MathJax>
+        <MathJax inline={!display}>{latex}</MathJax>
       </MathJaxContext>
     );
   }
 
   // 앱 (iOS / Android)
   if (Platform.OS !== 'web') {
-    const encodedLatex = cleanedLatex.replace(/\\/g, '\\\\'); // WebView용 이스케이프
+    const encodedLatex = latex.replace(/\\/g, '\\\\'); // WebView용 이스케이프
     const tag = display ? '\\[' : '\\(';
     const closeTag = display ? '\\]' : '\\)';
     const html = `
