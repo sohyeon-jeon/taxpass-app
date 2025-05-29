@@ -37,3 +37,19 @@ yarn-error.*
 
 app-example
 .env
+
+# iOS 빌드 산출물 및 사용자 설정
+ios/build/
+ios/DerivedData/
+ios/Pods/
+ios/Podfile.lock
+ios/**/*.xcuserstate
+ios/**/*.xcuserdata/
+ios/**/*.xcscheme
+ios/**/*.xcworkspace
+
+
+
+
+
+
