@@ -3,7 +3,7 @@ import Constants from 'expo-constants';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 
-const EXPO_PUBLIC_API_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_API_URL;
+const EXPO_PUBLIC_API_KEY = process.env.EXPO_PUBLIC_API_KEY
 
 type Subject = {
   id: number;
@@ -15,7 +15,7 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${EXPO_PUBLIC_API_URL}/subjects`)
+    fetch(`${EXPO_PUBLIC_API_KEY}/subjects`)
       .then((res) => res.json())
       .then((data) => {
         setSubjects(data);

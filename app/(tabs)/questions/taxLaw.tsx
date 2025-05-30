@@ -1,8 +1,7 @@
 import { View, Text, FlatList, StyleSheet, Pressable, Image, Platform,Alert } from 'react-native';
 import { useEffect, useState } from 'react';
-import Constants from 'expo-constants';
 
-const EXPO_PUBLIC_API_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_API_URL;
+const EXPO_PUBLIC_API_KEY = process.env.EXPO_PUBLIC_API_KEY
 const circledNumbers = ['①', '②', '③', '④', '⑤'];
 const redCircle = require('../../../assets/red_circle.png');
 const redX = require('../../../assets/red_x.png');
@@ -15,7 +14,7 @@ export default function TaxLawScreen() {
   const [results, setResults] = useState({});
 
   useEffect(() => {
-    fetch(`${EXPO_PUBLIC_API_URL}/questions/detail`)
+    fetch(`${EXPO_PUBLIC_API_KEY}/questions/detail`)
       .then((res) => res.json())
       .then((data) => {
         const parsed = data.map((item) => ({
@@ -24,7 +23,7 @@ export default function TaxLawScreen() {
           year: item[3],
           examType: item[4],
           questionText: item[5],
-          choices: JSON.parse(item[7] ?? '[]'),
+          choices: JSON.parse(item[6] ?? '[]'),
           correctAnswer: item[8],
           explanation: item[9],
         }));
