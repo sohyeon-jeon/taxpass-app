@@ -1,5 +1,7 @@
 import { View, Text, FlatList, StyleSheet, Pressable, Image, Platform,Alert } from 'react-native';
 import { useEffect, useState } from 'react';
+import HybridMathJax from '../../../components/HybridMathJax'; // 경로는 실제 위치에 맞게 수정
+
 
 const EXPO_PUBLIC_API_KEY = process.env.EXPO_PUBLIC_API_KEY
 const circledNumbers = ['①', '②', '③', '④', '⑤'];
@@ -116,7 +118,7 @@ export default function TaxLawScreen() {
 
             const renderNumberMark = () => {
               if (!isScored) {
-                return <Text style={styles.questionNumber}>{item.number}.</Text>;
+                return <Text>{item.number}.</Text>;
               }
               return isCorrect ? (
                 <View style={styles.markedNumberWrapper}>
@@ -132,79 +134,91 @@ export default function TaxLawScreen() {
             };
 
             return (
-              <View style={styles.questionCard}>
-                <View style={styles.questionHeader}>
-                  {renderNumberMark()}
-                  <Text style={styles.questionText}>
-                    ({item.year} {item.examType}) {item.questionText}
-                  </Text>
-                </View>
+          <View style={{ marginBottom: 24 }}>
+  {/* 문제번호 + 질문 수식 한 줄 정렬 */}
+  <View
+    style={{
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      flexWrap: 'wrap',
+      marginBottom: 8,
+    }}
+  >
+    <View style={{ marginRight: 8 }}>
+      {renderNumberMark()}
+    </View>
+    <View style={{ flex: 1 }}>
+      <HybridMathJax latex={item.questionText} display={false} />
+    </View>
+  </View>
 
-                {item.choices[0]?.type === 'table' && (
-                  <View style={styles.tableRow}>
-                    <View style={styles.symbolBoxPlaceholder} />
-                    {Object.keys(item.choices[0].content)
-                      .filter((k) => k !== '번호')
-                      .map((header, idx) => (
-                        <Text key={idx} style={[styles.tableHeaderCell, { width: 140 }]}>
-                          {header}
-                        </Text>
-                      ))}
-                  </View>
-                )}
+  {/* table 형 보기일 경우 헤더 */}
+  {item.choices[0]?.type === 'table' && (
+    <View style={{ flexDirection: 'row', marginBottom: 4 }}>
+      <View style={{ width: 30 }} />
+      {Object.keys(item.choices[0].content)
+        .filter((k) => k !== 'number')
+        .map((header, idx) => (
+          <Text key={idx} style={{ width: 140, fontWeight: 'bold' }}>{header}</Text>
+        ))}
+    </View>
+  )}
 
-                {item.choices.map((choice, index) => {
-                  const symbol = circledNumbers[index] ?? `(${index + 1})`;
-                  const isSelected = selected === index;
+  {/* 보기 렌더링 */}
+  {item.choices.map((choice, index) => {
+    const symbol = circledNumbers[index] ?? `(${index + 1})`;
+    const isSelected = selected === index;
 
-                  return (
-                    <Pressable
-                      key={choice.choice_index ?? index}
-                      onPress={() => handleSelect(item.id, index)}
-                      style={choice.type === 'table' ? styles.tableRow : styles.choiceRow}
-                      disabled={score !== null}
-                    >
-                      <View style={styles.symbolWrapper}>
-                        <View
-                          style={[
-                            styles.symbolBox,
-                            isSelected && styles.symbolBoxSelected,
-                          ]}
-                        >
-                          <Text
-                            style={
-                              isSelected ? styles.symbolTextSelected : styles.symbolText
-                            }
-                          >
-                            {symbol}
-                          </Text>
-                        </View>
-                      </View>
+    return (
+      <Pressable
+        key={choice.choice_index ?? index}
+        onPress={() => handleSelect(item.id, index)}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          marginBottom: 12,
+        }}
+        disabled={score !== null}
+      >
+        <View style={{ width: 30, marginTop: 4, marginRight: 6 }}>
+          <View
+            style={{
+              width: 20,
+              height: 20,
+              borderRadius: 10,
+              backgroundColor: isSelected ? '#000' : '#fff',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ color: isSelected ? '#fff' : '#000' }}>{symbol}</Text>
+          </View>
+        </View>
 
-                      {choice.type === 'table' ? (
-                        Object.entries(choice.content)
-                          .filter(([key]) => key !== '번호')
-                          .map(([_, value], idx) => (
-                            <Text key={idx} style={[styles.tableCell, { width: 140 }]}>
-                              {typeof value === 'object'
-                                ? JSON.stringify(value)
-                                : value}
-                            </Text>
-                          ))
-                      ) : (
-                        <View style={styles.choiceTextWrapper}>
-                          <Text style={styles.choiceText}>{choice.content}</Text>
-                        </View>
-                      )}
-                    </Pressable>
-                  );
-                })}
+        {choice.type === 'table' ? (
+          Object.entries(choice.content)
+            .filter(([key]) => key !== 'number')
+            .map(([_, value], idx) => (
+              <Text key={idx} style={{ width: 140 }}>
+                {typeof value === 'object' ? JSON.stringify(value) : value}
+              </Text>
+            ))
+        ) : (
+          <View style={{ flex: 1 }}>
+            <HybridMathJax latex={choice.content} display={false} />
+          </View>
+        )}
+      </Pressable>
+    );
+  })}
 
-                <Text style={styles.answer}>✅ 정답: {item.correctAnswer}</Text>
-                {item.explanation && (
-                  <Text style={styles.explanation}>📘 해설: {item.explanation}</Text>
-                )}
-              </View>
+  {/* 정답 및 해설 */}
+  {/* <Text style={{ color: 'green', fontWeight: 'bold' }}>✅ 정답: {item.correctAnswer}</Text>
+  {item.explanation && (
+    <Text style={{ color: '#444', marginTop: 4 }}>📘 해설: {item.explanation}</Text>
+  )} */}
+</View>
+
             );
           }}
         />
@@ -239,7 +253,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
   questionCard: { marginBottom: 32 },
-  questionHeader: { flexDirection: 'row', alignItems: 'center' },
+  questionHeader: { flex: 1,flexDirection: 'row', alignItems: 'center' },
   questionText: { fontSize: 16, fontFamily: 'serif', lineHeight: 26, flex: 1 },
   questionNumber: { fontSize: 16, fontWeight: 'bold', marginRight: 4 },
   markImage: {
