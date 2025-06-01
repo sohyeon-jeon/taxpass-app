@@ -1,5 +1,6 @@
 import { View, Text, FlatList, StyleSheet, Pressable, Image, Platform,Alert } from 'react-native';
 import { useEffect, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
 import HybridMathJax from '../../../components/HybridMathJax'; // 경로는 실제 위치에 맞게 수정
 
 
@@ -15,28 +16,43 @@ export default function TaxLawScreen() {
   const [score, setScore] = useState(null);
   const [results, setResults] = useState({});
 
+   const { subjectId, subjectName } = useLocalSearchParams();
+
   useEffect(() => {
-    fetch(`${EXPO_PUBLIC_API_KEY}/questions/detail`)
-      .then((res) => res.json())
-      .then((data) => {
-        const parsed = data.map((item) => ({
-          id: item[0],
-          number: item[2],
-          year: item[3],
-          examType: item[4],
-          questionText: item[5],
-          choices: JSON.parse(item[6] ?? '[]'),
-          correctAnswer: item[8],
-          explanation: item[9],
-        }));
-        setQuestions(parsed);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('❌ 세법 문제 로딩 실패:', err);
-        setLoading(false);
-      });
-  }, []);
+  if (subjectId) {
+    // 선택된 과목 정보 로그
+    console.log("선택된 과목 ID:", subjectId);
+    console.log("선택된 과목 이름:", subjectName);
+  }
+}, [subjectId]);
+
+useEffect(() => {
+  if (!subjectId) return;
+
+  setLoading(true); // fetch 시작 시 로딩 처리
+
+  fetch(`${EXPO_PUBLIC_API_KEY}/questions/${subjectId}`)
+    .then((res) => res.json())
+    .then((data) => {
+      const parsed = data.map((item) => ({
+        id: item[0],
+        number: item[2],
+        year: item[3],
+        examType: item[4],
+        questionText: item[5],
+        choices: JSON.parse(item[6] ?? '[]'),
+        correctAnswer: item[8],
+        explanation: item[9],
+      }));
+      setQuestions(parsed);
+      setLoading(false);
+    })
+    .catch((err) => {
+      console.error('❌ 세법 문제 로딩 실패:', err);
+      setLoading(false);
+    });
+}, [subjectId]);
+
 
   const handleSelect = (questionId, choiceIndex) => {
     if (score !== null) return; // 채점 후 비활성화
@@ -86,7 +102,7 @@ export default function TaxLawScreen() {
     <View style={styles.container}>
       <View style={styles.subjectBox}>
         <View style={styles.centerTitle}>
-          <Text style={styles.subjectText}>세법학개론</Text>
+          <Text style={styles.subjectText}>{subjectName}</Text>
         </View>
         {score !== null && (
           <Text style={styles.scoreText}>

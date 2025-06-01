@@ -30,9 +30,12 @@ export default function Index() {
 
   const router = useRouter();
 
-  const handlePress = (subjectName: string) => {
-    router.push("/(tabs)/questions/taxLaw");
-  };
+const handlePress = (subject: Subject) => {
+router.push(
+  `/(tabs)/questions/optionsExam?subjectId=${subject.id}&subjectName=${encodeURIComponent(subject.name)}`
+);
+};
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>과목별 기출문제</Text>
@@ -44,9 +47,9 @@ export default function Index() {
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.card} onPress={() => handlePress(item.name)}>
-              <Text style={styles.cardText}>{item.name}</Text>
-            </TouchableOpacity>
+           <TouchableOpacity style={styles.card} onPress={() => handlePress(item)}>
+  <Text style={styles.cardText}>{item.name}</Text>
+</TouchableOpacity>
           )}
         />
       )}
