@@ -22,7 +22,7 @@ export default function Index() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("❌ API 요청 실패:", err);
+        console.error("API 요청 실패:", err);
         setSubjects([]);
         setLoading(false);
       });
@@ -30,11 +30,11 @@ export default function Index() {
 
   const router = useRouter();
 
-const handlePress = (subject: Subject) => {
-router.push(
-  `/(tabs)/questions/optionsExam?subjectId=${subject.id}&subjectName=${encodeURIComponent(subject.name)}`
-);
-};
+  const handlePress = (subject: Subject) => {
+    router.push(
+      `/(tabs)/questions/optionsExam?subjectId=${subject.id}&subjectName=${encodeURIComponent(subject.name)}`
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -47,9 +47,9 @@ router.push(
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
-           <TouchableOpacity style={styles.card} onPress={() => handlePress(item)}>
-  <Text style={styles.cardText}>{item.name}</Text>
-</TouchableOpacity>
+            <TouchableOpacity style={styles.card} onPress={() => handlePress(item)}>
+              <Text style={styles.cardText}>{item.name}</Text>
+            </TouchableOpacity>
           )}
         />
       )}
