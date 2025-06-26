@@ -32,7 +32,7 @@ export default function Index() {
 
   const handlePress = (subject: Subject) => {
     router.push(
-      `/(tabs)/questions/optionsExam?subjectId=${subject.id}&subjectName=${encodeURIComponent(subject.name)}`
+      `/questions/optionsExam?subjectId=${subject.id}&subjectName=${encodeURIComponent(subject.name)}`
     );
   };
 
