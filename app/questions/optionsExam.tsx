@@ -1,7 +1,7 @@
 import { View, Text, FlatList, StyleSheet, Pressable, Image, Platform,Alert } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import HybridMathJax from '../../../components/HybridMathJax'; // 경로는 실제 위치에 맞게 수정
+import HybridMathJax from '../../components/HybridMathJax'; // 경로는 실제 위치에 맞게 수정
 
 // 타입 선언부 시작
 type TextChoice = {
@@ -37,8 +37,8 @@ type RawData = [number, any, number, number, string, string, string, any, string
 
 const EXPO_PUBLIC_API_KEY = process.env.EXPO_PUBLIC_API_KEY
 const circledNumbers = ['①', '②', '③', '④', '⑤'];
-const redCircle = require('../../../assets/red_circle.png');
-const redX = require('../../../assets/red_x.png');
+const redCircle = require('../../assets/red_circle.png');
+const redX = require('../../assets/red_x.png');
 
 export default function TaxLawScreen() {
   const [questions, setQuestions] = useState<Question[]>([]);
