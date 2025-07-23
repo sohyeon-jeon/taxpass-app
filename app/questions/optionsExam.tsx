@@ -1,8 +1,7 @@
-import { View, Text, FlatList, StyleSheet, Pressable, Image, Platform, Alert, InteractionManager } from 'react-native';
-import { useEffect, useState, useRef } from 'react';
+import { View, Text, StyleSheet, Pressable, Image, Platform, Alert, ScrollView } from 'react-native';
+import { useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import HybridMathJax from '../../components/HybridMathJax';
-import { ViewToken, ViewabilityConfigCallbackPair } from 'react-native';
 
 // 타입 선언
 type TextChoice = { type: 'text'; content: string; choice_index?: number };
@@ -31,9 +30,7 @@ export default function TaxLawScreen() {
   const [selectedChoices, setSelectedChoices] = useState<Record<number, number>>({});
   const [score, setScore] = useState<number | null>(null);
   const [results, setResults] = useState<Record<number, boolean>>({});
-  const [renderedQuestionIds, setRenderedQuestionIds] = useState<Set<number>>(new Set());
-  const [everVisibleQuestionIds, setEverVisibleQuestionIds] = useState<Set<number>>(new Set());
-  const [visibleReady, setVisibleReady] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   const { subjectId, subjectName } = useLocalSearchParams<{ subjectId?: string; subjectName?: string }>();
 
@@ -52,21 +49,10 @@ export default function TaxLawScreen() {
           correctAnswer: item[8],
           explanation: item[9],
         }));
-        InteractionManager.runAfterInteractions(() => setQuestions(parsed));
+        setQuestions(parsed);
       })
       .catch(err => console.error('문제 로딩 실패:', err));
   }, [subjectId]);
-
-
-  const handleMathJaxLoaded = (id: number) => {
-    setRenderedQuestionIds(prev => new Set(prev).add(id));
-  };
-
-  useEffect(() => {
-    const allReady = Array.from(everVisibleQuestionIds).every(id => renderedQuestionIds.has(id));
-    console.log('allReady', allReady)
-    setVisibleReady(allReady);
-  }, [everVisibleQuestionIds, renderedQuestionIds]);
 
   const handleSelect = (id: number, index: number) => {
     if (score !== null) return;
@@ -86,21 +72,6 @@ export default function TaxLawScreen() {
     setResults(result);
     setScore(correct);
   };
-
-  const onViewRef = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    setEverVisibleQuestionIds(prev => {
-      const updated = new Set(prev);
-      viewableItems.forEach(v => updated.add(v.item.id));
-      return updated;
-    });
-  });
-
-  const viewabilityConfigCallbackPairs = useRef<ViewabilityConfigCallbackPair[]>([
-    {
-      viewabilityConfig: { itemVisiblePercentThreshold: 50 },
-      onViewableItemsChanged: onViewRef.current,
-    },
-  ]);
 
   return (
     <View style={styles.container}>
@@ -127,26 +98,54 @@ export default function TaxLawScreen() {
         </Pressable>
       </View>
 
-      <FlatList
-        data={questions}
-        keyExtractor={item => item.id.toString()}
-        viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
-        initialNumToRender={5}
-        maxToRenderPerBatch={8}
-        windowSize={7}
-        removeClippedSubviews
-    style={{
-  opacity: Platform.OS === 'web'
-    ? (questions.length > 0 ? 1 : 0)
-    : ( visibleReady ? 1 : 0), 
-}}
+      {questions.length > 0 && (
+        <View style={styles.navigationContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.navigatorScrollView}>
+            {questions.map((_, index) => (
+              <Pressable
+                key={index}
+                style={[
+                  styles.navigatorButton,
+                  currentQuestionIndex === index && styles.navigatorButtonActive
+                ]}
+                onPress={() => setCurrentQuestionIndex(index)}
+              >
+                <Text style={[
+                  styles.navigatorText,
+                  currentQuestionIndex === index && styles.navigatorTextActive
+                ]}>{index + 1}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+          <View style={styles.navigationActions}>
+              <Pressable
+                  onPress={() => setCurrentQuestionIndex(i => Math.max(0, i - 1))}
+                  disabled={currentQuestionIndex === 0}
+                  style={[styles.navActionButton, currentQuestionIndex === 0 && styles.disabledButton]}
+              >
+                  <Text style={styles.navActionText}>이전</Text>
+              </Pressable>
+              <Text style={styles.questionCounter}>{currentQuestionIndex + 1} / {questions.length}</Text>
+              <Pressable
+                  onPress={() => setCurrentQuestionIndex(i => Math.min(questions.length - 1, i + 1))}
+                  disabled={currentQuestionIndex >= questions.length - 1}
+                  style={[styles.navActionButton, currentQuestionIndex >= questions.length - 1 && styles.disabledButton]}
+              >
+                  <Text style={styles.navActionText}>다음</Text>
+              </Pressable>
+          </View>
+        </View>
+      )}
 
-        renderItem={({ item }) => {
-          const selected = selectedChoices[item.id];
-          const isCorrect = results[item.id];
-          const isScored = score !== null && selected !== undefined;
+      {questions.length > 0 ? (() => {
+        const item = questions[currentQuestionIndex];
+        if (!item) return null;
+        const selected = selectedChoices[item.id];
+        const isCorrect = results[item.id];
+        const isScored = score !== null && selected !== undefined;
 
-          return (
+        return (
+          <ScrollView style={styles.questionScrollView}>
             <View style={{ marginBottom: 24 }}>
               <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 8 }}>
                 <View style={{ marginRight: 8 }}>
@@ -163,7 +162,6 @@ export default function TaxLawScreen() {
                   <HybridMathJax
                     latex={item.questionText}
                     display={false}
-                    onLoadEnd={() => handleMathJaxLoaded(item.id)}
                   />
                 </View>
               </View>
@@ -211,27 +209,17 @@ export default function TaxLawScreen() {
                 </Pressable>
               ))}
 
-              {/* {score !== null && (
+             {score !== null && (
                 <View style={{ marginTop: 6 }}>
                   <Text style={{ color: 'green', fontWeight: 'bold' }}>정답: {item.correctAnswer}</Text>
                   {item.explanation && <Text style={{ color: '#444', marginTop: 4 }}>해설: {item.explanation}</Text>}
                 </View>
-              )} */}
+              )}
             </View>
-          );
-        }}
-      />
-
-      {(Platform.OS === 'web'
-        ? questions.length === 0
-        : !visibleReady) && (
-          <View style={{
-            position: 'absolute',
-            top: '40%',
-            left: 0,
-            right: 0,
-            alignItems: 'center',
-          }}>
+          </ScrollView>
+        );
+      })() : (
+          <View style={styles.loadingContainer}>
             <Text style={{ fontSize: 18 }}>문제를 준비 중입니다...</Text>
           </View>
         )}
@@ -243,7 +231,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 24, backgroundColor: '#fff' },
   subjectBox: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    borderWidth: 1, borderColor: '#000', paddingVertical: 8, paddingHorizontal: 16, marginBottom: 24,
+    borderWidth: 1, borderColor: '#000', paddingVertical: 8, paddingHorizontal: 16, marginBottom: 16,
   },
   centerTitle: { flex: 1, alignItems: 'center' },
   subjectText: { fontSize: 20, fontWeight: 'bold' },
@@ -256,4 +244,60 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center', position: 'relative',
   },
   markedNumberText: { fontSize: 16, fontWeight: 'bold', color: '#d00', zIndex: 1 },
+  navigationContainer: {
+    marginBottom: 16,
+  },
+  navigatorScrollView: {
+    paddingBottom: 8,
+  },
+  navigatorButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: '#eee',
+    marginHorizontal: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  navigatorButtonActive: {
+    backgroundColor: '#007AFF',
+  },
+  navigatorText: {
+    color: '#000',
+    fontSize: 16,
+  },
+  navigatorTextActive: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  navigationActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+    paddingHorizontal: 4,
+  },
+  navActionButton: {
+    padding: 8,
+  },
+  navActionText: {
+    fontSize: 16,
+    color: '#007AFF',
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    opacity: 0.4,
+  },
+  questionCounter: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  questionScrollView: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
