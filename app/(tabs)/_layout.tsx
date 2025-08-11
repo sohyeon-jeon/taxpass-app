@@ -5,9 +5,19 @@ export default function TabLayout() {
   return (
     <Tabs>
       <Tabs.Screen
-        name="index" // ← home → index로 변경
+        name="index" 
         options={{
-          title: '홈',
+          title: 'ox 퀴즈',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" size={size} color={color} />
+          ),
+        }}
+      />
+        <Tabs.Screen
+        name="McqSubjects" 
+        options={{
+          title: '기출문제',
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home-outline" size={size} color={color} />

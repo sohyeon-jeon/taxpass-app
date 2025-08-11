@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Pressable, Image, Platform, Alert, ScrollView } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import HybridMathJax from '../../components/HybridMathJax';
+import HybridMathJax from '../../../components/HybridMathJax';
 
 // 타입 선언
 type TextChoice = { type: 'text'; content: string; choice_index?: number };
@@ -22,8 +22,8 @@ type Question = {
 type RawData = [number, any, number, number, string, string, string, any, string, string];
 
 const circledNumbers = ['①', '②', '③', '④', '⑤'];
-const redCircle = require('../../assets/red_circle.png');
-const redX = require('../../assets/red_x.png');
+const redCircle = require('../../../assets/red_circle.png');
+const redX = require('../../../assets/red_x.png');
 
 export default function TaxLawScreen() {
   const [questions, setQuestions] = useState<Question[]>([]);
