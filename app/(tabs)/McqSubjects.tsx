@@ -30,18 +30,11 @@ export default function Index() {
 
   const router = useRouter();
 
-  // const handlePress = (subject: Subject) => {
-  //   router.push(
-  //     `/questions/OxQuestion?subjectId=${subject.id}&subjectName=${encodeURIComponent(subject.name)}`
-  //   );
-  // };
 
     const handlePress = (subject: Subject) => {
-    router.push(`/questions/OxQuestion/${subject.id}?subjectName=${encodeURIComponent(subject.name)}`);
+    router.push(`/questions/McqQuestion/${subject.id}?subjectName=${encodeURIComponent(subject.name)}`);
   };
 
-  
-  
 
   return (
     <View style={styles.container}>

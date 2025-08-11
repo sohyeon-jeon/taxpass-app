@@ -1,3 +1,4 @@
+// HybridMathJax.tsx
 import React from 'react';
 import { Platform, View } from 'react-native';
 import { MathJax, MathJaxContext } from 'better-react-mathjax';
@@ -7,9 +8,10 @@ type Props = {
   latex: string;
   fontSize?: number;
   display?: boolean;
+  onLoadEnd?: () => void;
 };
 
-export default function HybridMathJax({ latex, fontSize = 16, display = false }: Props) {
+export default function HybridMathJax({ latex, fontSize = 16, display = false, onLoadEnd }: Props) {
   if (Platform.OS === 'web' && MathJaxContext && MathJax) {
     return (
       <MathJaxContext
@@ -37,7 +39,6 @@ export default function HybridMathJax({ latex, fontSize = 16, display = false }:
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- Load web font for iOS serif compatibility -->
         <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR&display=swap" rel="stylesheet">
         <style>
           html, body {
@@ -52,8 +53,8 @@ export default function HybridMathJax({ latex, fontSize = 16, display = false }:
         <script>
           window.MathJax = {
             tex: {
-              inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
-              displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']],
+              inlineMath: [['$', '$'], ['\\\(', '\\\)']],
+              displayMath: [['$$', '$$'], ['\\\[', '\\\]']],
             },
             startup: {
               typeset: true,
@@ -77,8 +78,8 @@ export default function HybridMathJax({ latex, fontSize = 16, display = false }:
         originWhitelist={['*']}
         source={{ html }}
         style={{ width: '100%', backgroundColor: 'transparent' }}
-        customStyle={''}
         scrollEnabled={false}
+        onLoadEnd={onLoadEnd}
       />
     </View>
   );
