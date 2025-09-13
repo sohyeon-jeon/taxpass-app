@@ -37,9 +37,25 @@
           <string>exp+taxpass-app</string>
         </array>
       </dict>
+      <dict>
+        <key>CFBundleTypeRole</key>
+        <string>Editor</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>kakao$(EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY)</string>
+        </array>
+      </dict>
     </array>
     <key>CFBundleVersion</key>
     <string>1</string>
+    <key>KAKAO_APP_KEY</key>
+    <string>$(EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY)</string>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+      <string>kakaokompassauth</string>
+      <string>storykompassauth</string>
+      <string>kakaolink</string>
+    </array>
     <key>LSMinimumSystemVersion</key>
     <string>12.0</string>
     <key>LSRequiresIPhoneOS</key>
