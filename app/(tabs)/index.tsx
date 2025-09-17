@@ -38,11 +38,8 @@ export default function Index() {
   return (
     <View style={styles.container}>
       {profile && (
-        <View style={styles.profileSection}>
-          <View style={styles.profileInfo}>
-            <Image source={{ uri: profile.profileImageUrl }} style={styles.profileImage} />
+        <View style={styles.profileSection}>   
             <Text style={styles.profileText}>{profile.nickname}님, 환영합니다!</Text>
-          </View>
           <TouchableOpacity style={styles.logoutButton} onPress={() => signOut()}>
             <Text style={styles.logoutButtonText}>로그아웃</Text>
           </TouchableOpacity>
