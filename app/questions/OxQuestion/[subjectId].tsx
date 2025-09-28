@@ -4,10 +4,11 @@ import {
   Platform, Animated, Easing, ScrollView
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSession } from '../../../src/lib/SessionProvider';
 
 // 타입 선언
 type Question = {
-  id: number;
+  // id: number;
   question: string;
   answer: boolean;
   explanation: string;
@@ -18,6 +19,7 @@ export default function OxQuestion() {
   const params = useLocalSearchParams();
   const rawSubjectId = params.subjectId;
   const rawSubjectName = params.subjectName;
+  const { token } = useSession();
 
   // 과목Id 가져오기
   const subjectId = Array.isArray(rawSubjectId) ? rawSubjectId[0] : rawSubjectId;
@@ -51,14 +53,18 @@ export default function OxQuestion() {
       if (!subjectId) return;
       try {
         const baseUrl = process.env.EXPO_PUBLIC_API_KEY;
-        const res = await fetch(`${baseUrl}/ox-questions/${subjectId}`);
+        const headers = new Headers();
+        if (token) {
+          headers.append('Authorization', `Bearer ${token}`);
+        }
+        const res = await fetch(`${baseUrl}/api/ox-questions/${subjectId}`, { headers });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: any[] = await res.json();
         const mapped: Question[] = data.map((row) => ({
-          id: row[0],
-          question: row[3],
-          answer: Boolean(row[4]),
-          explanation: row[5] ?? '',
+          // id: row[0],
+          question: row[2],
+          answer: Boolean(row[3]),
+          explanation: row[4] ?? '',
         }));
         setQuestions(mapped);
         setIdx(0);
@@ -70,7 +76,7 @@ export default function OxQuestion() {
       }
     };
     fetchQuestions();
-  }, [subjectId]);
+  }, [subjectId, token]);
 
   const progress = questions.length ? Math.round(((idx + 1) / questions.length) * 100) : 0;
 
