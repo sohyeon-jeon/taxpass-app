@@ -8,7 +8,7 @@ import { useSession } from '../../../src/lib/SessionProvider';
 
 // 타입 선언
 type Question = {
-  // id: number;
+  number: number;
   question: string;
   answer: boolean;
   explanation: string;
@@ -61,7 +61,7 @@ export default function OxQuestion() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: any[] = await res.json();
         const mapped: Question[] = data.map((row) => ({
-          // id: row[0],
+          number: row[1],
           question: row[2],
           answer: Boolean(row[3]),
           explanation: row[4] ?? '',
@@ -110,11 +110,35 @@ export default function OxQuestion() {
 
   const current = questions[idx];
 
-  const onAnswer = (val: 'O' | 'X') => {
+  const onAnswer = async (val: 'O' | 'X') => {
+    if (!subjectId || current?.number === undefined) return;
+
     setSelected(val);
     const userChoice = val === 'O';
     const correct = userChoice === current.answer;
     setIsCorrect(correct);
+
+    try {
+      const baseUrl = process.env.EXPO_PUBLIC_API_KEY;
+      const headers = new Headers();
+      headers.append('Content-Type', 'application/json');
+      if (token) {
+        headers.append('Authorization', `Bearer ${token}`);
+      }
+
+      await fetch(`${baseUrl}/api/ox-answers`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          subjectId: Number(subjectId),
+          number: current.number,
+          userAnswer: userChoice,
+          isCorrect: correct,
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to save answer:', e);
+    }
   };
 
   const onNext = () => {
