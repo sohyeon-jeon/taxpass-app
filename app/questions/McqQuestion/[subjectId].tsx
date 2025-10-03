@@ -46,8 +46,8 @@ export default function TaxLawScreen() {
           examType: item[4],
           questionText: item[5],
           choices: JSON.parse(item[6] ?? '[]'),
-          correctAnswer: item[8],
-          explanation: item[9],
+          correctAnswer: item[7],
+          explanation: item[8],
         }));
         setQuestions(parsed);
       })
