@@ -8,7 +8,11 @@ import { useSession } from '../../../src/lib/SessionProvider';
 
 // 타입 선언
 type Question = {
+  question_id: number;
+  main_theme: string;
+  theme: string;
   number: number;
+  question_title: string;
   question: string;
   answer: boolean;
   explanation: string;
@@ -61,10 +65,14 @@ export default function OxQuestion() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: any[] = await res.json();
         const mapped: Question[] = data.map((row) => ({
-          number: row[1],
-          question: row[2],
-          answer: Boolean(row[3]),
-          explanation: row[4] ?? '',
+          question_id: row[0],
+          main_theme: row[2],
+          theme: row[3],
+          number: row[4],
+          question_title: row[5],
+          question: row[6],
+          answer: Boolean(row[7]),
+          explanation: row[8] ?? '',
         }));
         setQuestions(mapped);
         setIdx(0);
@@ -99,7 +107,7 @@ export default function OxQuestion() {
   if (idx >= questions.length) {
     return (
       <View style={styles.center}>
-        <Text style={styles.title}>🎉 Completed!</Text>
+        <Text style={styles.title}>Completed!</Text>
         <Text style={styles.muted}>You solved all {questions.length} questions.</Text>
         <Pressable style={[styles.cta, { marginTop: 18 }]} onPress={() => router.back()}>
           <Text style={styles.ctaText}>Go Back</Text>
@@ -131,7 +139,7 @@ export default function OxQuestion() {
         headers,
         body: JSON.stringify({
           subjectId: Number(subjectId),
-          number: current.number,
+          questionId: current.question_id,
           userAnswer: userChoice,
           isCorrect: correct,
         }),
@@ -175,10 +183,15 @@ export default function OxQuestion() {
       {/* Question card */}
       <View style={styles.cardWrap}>
         <View style={styles.card}>
-          <Text style={styles.qNumber}>Q{idx + 1}</Text>
-          <ScrollView contentContainerStyle={{ paddingBottom: 8 }} showsVerticalScrollIndicator={false}>
+          <View style={styles.tagWrap}>
+            <Text style={styles.tagMain}>{current.main_theme}</Text>
+            <Text style={styles.tagSub}>{current.theme}</Text>
+          </View>
+
+          <Text style={styles.qNumber}>{current.question_title}</Text>
+          <View style={{ paddingBottom: 8 }}>
             <Text style={styles.qText}>{current.question}</Text>
-          </ScrollView>
+          </View>
         </View>
       </View>
 
@@ -220,9 +233,11 @@ export default function OxQuestion() {
 
           <Text style={styles.correctAnswerText}>정답: {current.answer ? 'O' : 'X'}</Text>
 
-          <View style={styles.explainBox}>
-            <Text style={styles.explainText}>{current.explanation}</Text>
-          </View>
+          {current.explanation?.trim() !== '' && (
+            <View style={styles.explainBox}>
+              <Text style={styles.explainText}>{current.explanation}</Text>
+            </View>
+          )}
         </View>
       )}
 
@@ -237,7 +252,7 @@ export default function OxQuestion() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F7F8FA', paddingTop: Platform.select({ ios: 14, android: 10, default: 8 }) },
+  screen: { flex: 1, backgroundColor: '#F7F8FA'ƒ, paddingTop: Platform.select({ ios: 14, android: 10, default: 8 }) },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18, paddingVertical: 12 },
   back: { fontSize: 26, color: '#111' },
   titleWrap: { flexDirection: 'row', alignItems: 'center', maxWidth: '60%' },
@@ -250,7 +265,7 @@ const styles = StyleSheet.create({
 
   cardWrap: { flex: 1, paddingHorizontal: 18, paddingTop: 16 },
   card: { flex: 1, backgroundColor: '#fff', borderRadius: 16, padding: 18, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
-  qNumber: { fontSize: 14, color: '#6B7280', marginBottom: 8 },
+  qNumber: { fontSize: 14, color: '#6B7280', paddingTop: 8, marginBottom: 8 },
   qText: { fontSize: 20, lineHeight: 28, color: '#0F172A' },
 
   oxRow: { flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', paddingHorizontal: 18, paddingTop: 16 },
@@ -280,4 +295,29 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
   title: { fontSize: 22, fontWeight: '700', color: '#111' },
   muted: { marginTop: 8, color: '#6B7280' },
+  tagWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 4,
+  },
+
+  tagMain: {
+    fontSize: 11,
+    color: '#2563EB',
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+    marginRight: 6,
+  },
+
+  tagSub: {
+    fontSize: 11,
+    color: '#047857',
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+  },
+
 });
