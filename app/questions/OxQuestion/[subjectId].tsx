@@ -189,9 +189,12 @@ export default function OxQuestion() {
           </View>
 
           <Text style={styles.qNumber}>{current.question_title}</Text>
-          <View style={{ paddingBottom: 8 }}>
+          {/* <ScrollView style={{ paddingBottom: 8 }}>
             <Text style={styles.qText}>{current.question}</Text>
-          </View>
+          </ScrollView> */}
+          <ScrollView contentContainerStyle={{ paddingBottom: 8 }} showsVerticalScrollIndicator={false}>
+            <Text style={styles.qText}>{current.question}</Text>
+          </ScrollView>
         </View>
       </View>
 
@@ -252,7 +255,7 @@ export default function OxQuestion() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#F7F8FA'ƒ, paddingTop: Platform.select({ ios: 14, android: 10, default: 8 }) },
+  screen: { flex: 1, backgroundColor: '#F7F8FA', paddingTop: Platform.select({ ios: 14, android: 10, default: 8 }) },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18, paddingVertical: 12 },
   back: { fontSize: 26, color: '#111' },
   titleWrap: { flexDirection: 'row', alignItems: 'center', maxWidth: '60%' },
