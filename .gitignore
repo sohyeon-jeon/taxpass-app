@@ -48,6 +48,9 @@ ios/**/*.xcuserdata/
 ios/**/*.xcscheme
 ios/**/*.xcworkspace
 
+# android 빌드 산출물 및 사용자 설정
+android/base.apk
+
 
 
 

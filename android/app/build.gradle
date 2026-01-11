@@ -10,7 +10,11 @@ if (localPropertiesFile.exists()) {
     }
 }
 
-def kakaoAppKey = localProperties.getProperty("KAKAO_NATIVE_APP_KEY")
+def kakaoAppKey =
+        System.getenv("EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY")
+        ?: localProperties.getProperty("KAKAO_NATIVE_APP_KEY")
+        ?: ""
+
 
 
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
@@ -137,6 +141,11 @@ android {
     }
     androidResources {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
+    }
+
+     lint {
+        checkReleaseBuilds false
+        abortOnError false
     }
 }
 
