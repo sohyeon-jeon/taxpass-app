@@ -1,5 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
 
+const EXPO_PUBLIC_KAKAO_REDIRECT_URI = process.env.EXPO_PUBLIC_KAKAO_REDIRECT_URI;
+
 declare global {
   interface Window {
     Kakao: any;
@@ -10,7 +12,7 @@ export default function LoginScreen() {
   const handleLogin = () => {
     if (window.Kakao && window.Kakao.isInitialized()) {
       window.Kakao.Auth.authorize({
-        redirectUri: 'http://localhost:8081/kakao/callback',
+        redirectUri: EXPO_PUBLIC_KAKAO_REDIRECT_URI,
         throughTalk: false, // 웹에서는 항상 웹 로그인 창을 사용
       });
     }
