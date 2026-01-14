@@ -99,8 +99,8 @@ export default function OxQuestion() {
   if (!questions.length) {
     return (
       <View style={styles.center}>
-        <Text style={styles.title}>No questions found</Text>
-        <Text style={styles.muted}>Try a different subject.</Text>
+        <Text style={styles.title}>아직 문제가 없어요</Text>
+        <Text style={styles.muted}>문제가 곧 추가될 예정이에요😊</Text>
       </View>
     );
   }
@@ -231,10 +231,10 @@ export default function OxQuestion() {
       {selected && (
         <View style={styles.resultWrap}>
           <View style={[styles.banner, isCorrect ? styles.bannerCorrect : styles.bannerWrong]}>
-            <Text style={styles.bannerText}>{isCorrect ? '정답입니다!' : '오답입니다.'}</Text>
+            <Text style={styles.bannerText}>정답: {current.answer ? 'O' : 'X'} / {isCorrect ? '정답입니다!' : '오답입니다.'} </Text>
           </View>
 
-          <Text style={styles.correctAnswerText}>정답: {current.answer ? 'O' : 'X'}</Text>
+          {/* <Text style={styles.correctAnswerText}>정답: {current.answer ? 'O' : 'X'}</Text> */}
 
           {current.explanation?.trim() !== '' && (
             <View style={styles.explainBox}>
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   cardWrap: { flex: 1, paddingHorizontal: 18, paddingTop: 16 },
   card: { flex: 1, backgroundColor: '#fff', borderRadius: 16, padding: 18, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
   qNumber: { fontSize: 14, color: '#6B7280', paddingTop: 8, marginBottom: 8 },
-  qText: { fontSize: 20, lineHeight: 28, color: '#0F172A' },
+  qText: { fontSize: 15, lineHeight: 28, color: '#0F172A' },
 
   oxRow: { flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', paddingHorizontal: 18, paddingTop: 16 },
   oxBase: { width: 120, height: 120, borderRadius: 60, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 3 },
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   oxX: { backgroundColor: '#EF4444' },
   oxLabel: { fontSize: 70, fontWeight: '700', color: '#fff' },
 
-  selectedBtn: { opacity: 0.7 },
+  selectedBtn: { opacity: 0.4},
   pressed: { transform: [{ scale: 0.98 }] },
 
   resultWrap: { paddingHorizontal: 18, paddingTop: 16 },
@@ -296,8 +296,8 @@ const styles = StyleSheet.create({
   ctaText: { color: '#fff', fontSize: 18, fontWeight: '600' },
 
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
-  title: { fontSize: 22, fontWeight: '700', color: '#111' },
-  muted: { marginTop: 8, color: '#6B7280' },
+  title: { fontSize: 20, fontWeight: '700', color: '#111' },
+  muted: { marginTop: 8, fontSize:18,color: '#6B7280' },
   tagWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',

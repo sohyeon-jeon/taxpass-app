@@ -75,28 +75,37 @@ export default function TaxLawScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.subjectBox}>
-        <View style={styles.centerTitle}>
-          <Text style={styles.subjectText}>{subjectName}</Text>
-        </View>
-        {score !== null && <Text style={styles.scoreText}>{score} / {questions.length}</Text>}
-        <Pressable
-          style={[styles.submitButton, score !== null && { backgroundColor: '#ccc' }]}
-          onPress={() => {
-            if (Platform.OS === 'web') {
-              if (window.confirm('제출하시겠습니까?')) gradeQuestions();
-            } else {
-              Alert.alert('제출', '제출하시겠습니까?', [
-                { text: '취소', style: 'cancel' },
-                { text: '제출', onPress: gradeQuestions },
-              ]);
-            }
-          }}
-          disabled={score !== null}
-        >
-          <Text style={styles.submitButtonText}>제출</Text>
-        </Pressable>
-      </View>
+      {questions.length > 0 && (
+  <View style={styles.subjectBox}>
+    <View style={styles.centerTitle}>
+      <Text style={styles.subjectText}>{subjectName}</Text>
+    </View>
+
+    {score !== null && (
+      <Text style={styles.scoreText}>
+        {score} / {questions.length}
+      </Text>
+    )}
+
+    <Pressable
+      style={[styles.submitButton, score !== null && { backgroundColor: '#ccc' }]}
+      onPress={() => {
+        if (Platform.OS === 'web') {
+          if (window.confirm('제출하시겠습니까?')) gradeQuestions();
+        } else {
+          Alert.alert('제출', '제출하시겠습니까?', [
+            { text: '취소', style: 'cancel' },
+            { text: '제출', onPress: gradeQuestions },
+          ]);
+        }
+      }}
+      disabled={score !== null}
+    >
+      <Text style={styles.submitButtonText}>제출</Text>
+    </Pressable>
+  </View>
+)}
+
 
       {questions.length > 0 && (
         <View style={styles.navigationContainer}>
@@ -219,9 +228,10 @@ export default function TaxLawScreen() {
           </ScrollView>
         );
       })() : (
-          <View style={styles.loadingContainer}>
-            <Text style={{ fontSize: 18 }}>문제를 준비 중입니다...</Text>
-          </View>
+        <View style={styles.center}>
+                <Text style={styles.title}>아직 문제가 없어요</Text>
+                <Text style={styles.muted}>문제가 곧 추가될 예정이에요😊</Text>
+              </View>
         )}
     </View>
   );
@@ -233,6 +243,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     borderWidth: 1, borderColor: '#000', paddingVertical: 8, paddingHorizontal: 16, marginBottom: 16,
   },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
+  title: { fontSize: 20, fontWeight: '700', color: '#111' },
+  muted: { marginTop: 8, fontSize:18,color: '#6B7280' },
+
   centerTitle: { flex: 1, alignItems: 'center' },
   subjectText: { fontSize: 20, fontWeight: 'bold' },
   scoreText: { fontSize: 16, fontWeight: 'bold', color: 'red', marginHorizontal: 8 },

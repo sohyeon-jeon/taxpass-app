@@ -5,7 +5,7 @@ export default function TabLayout() {
   return (
     <Tabs>
       <Tabs.Screen
-        name="index" 
+        name="index"
         options={{
           title: 'ox 퀴즈',
           headerShown: false,
@@ -14,8 +14,9 @@ export default function TabLayout() {
           ),
         }}
       />
-        <Tabs.Screen
-        name="McqSubjects" 
+
+      <Tabs.Screen
+        name="McqSubjects"
         options={{
           title: '기출문제',
           headerShown: false,
@@ -24,16 +25,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="wrong-note"
-        options={{
-          title: '오답노트',
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="book-outline" size={size} color={color} />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="settings"
         options={{
@@ -44,6 +36,15 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      {/* 🔥 탭에 안 보이는 관리자 화면 */}
+      <Tabs.Screen
+        name="question-upload"
+        options={{
+          href: null,        // 탭에서 제거
+          headerShown: false
+        }}
+      />
     </Tabs>
-  )
+  );
 }
