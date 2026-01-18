@@ -12,7 +12,7 @@ export default function LoginScreen() {
   const handleLogin = () => {
     if (window.Kakao && window.Kakao.isInitialized()) {
       window.Kakao.Auth.authorize({
-        redirectUri: EXPO_PUBLIC_KAKAO_REDIRECT_URI,
+        redirectUri: 'http://3.34.90.212/kakao/callback',
         throughTalk: false, // 웹에서는 항상 웹 로그인 창을 사용
       });
     }
@@ -22,7 +22,6 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <View style={styles.content}>
         <Image source={require('../../assets/images/icon.png')} style={styles.logo} />
-        <Text style={styles.title}>TaxPass</Text>
         <Text style={styles.subtitle}>세무사 시험 기출문제 앱</Text>
       </View>
       <TouchableOpacity 
@@ -47,11 +46,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  logo: {
-    width: 100,
-    height: 100,
-    marginBottom: 20,
-  },
+logo: {
+  width: 260,
+  height: 260,
+  marginBottom: 5,
+  resizeMode: 'contain',
+},
   title: {
     fontSize: 32,
     fontWeight: 'bold',
