@@ -169,6 +169,7 @@ export default function TaxLawScreen() {
                 </View>
                 <View style={{ flex: 1 }}>
                   <HybridMathJax
+                    key={item.id}
                     latex={item.questionText}
                     display={false}
                   />
@@ -212,7 +213,12 @@ export default function TaxLawScreen() {
                       ))
                   ) : (
                     <View style={{ flex: 1 }}>
-                      <HybridMathJax latex={choice.content} display={false} />
+                      <HybridMathJax
+  key={`${item.id}-${index}`}
+  latex={choice.content}
+  display={false}
+/>
+
                     </View>
                   )}
                 </Pressable>
