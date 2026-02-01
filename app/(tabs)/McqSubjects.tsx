@@ -38,7 +38,7 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>과목별 기출문제</Text>
+      <Text style={styles.title}>기출문제</Text>
       {loading ? (
         <Text>불러오는 중...</Text>
       ) : (

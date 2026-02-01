@@ -46,7 +46,7 @@ export default function Index() {
         </View>
       )}
 
-      <Text style={styles.title}>과목별 기출문제</Text>
+      <Text style={styles.title}>OX 문제</Text>
       {loading ? (
         <Text>불러오는 중...</Text>
       ) : (

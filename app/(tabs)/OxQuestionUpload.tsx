@@ -25,16 +25,16 @@ type Row = {
 
 type CellPos =
   | {
-      row: number;
-      col: keyof Row;
-    }
+    row: number;
+    col: keyof Row;
+  }
   | null;
 
 type SortState =
   | {
-      col: keyof Row;
-      direction: 'asc' | 'desc';
-    }
+    col: keyof Row;
+    direction: 'asc' | 'desc';
+  }
   | null;
 
 /* =====================
@@ -68,13 +68,19 @@ export default function OxQuestionUpload() {
     'explanation',
   ];
 
-  const columnWidths: Record<keyof Row, number> = {
-    main_theme: 250,
-    theme: 250,
-    question_title: 500,
-    question_text: 700,
-    answer: 80,
-    explanation: 600,
+  const columnFlex: Record<keyof Row, number> = {
+    main_theme: 1,
+    theme: 1,
+    question_title: 2,
+    question_text: 3,
+    answer: 0.6,
+    explanation: 3,
+  };
+
+  const showPreparing = () => {
+    if (Platform.OS === 'web') {
+      window.alert('해당 기능은 준비 중입니다. 곧 제공될 예정이에요🙂');
+    }
   };
 
   /* =====================
@@ -184,138 +190,164 @@ export default function OxQuestionUpload() {
     reader.readAsBinaryString(file);
   };
 
+
+  const columnLabels: Record<keyof Row, string> = {
+    main_theme: '대주제',
+    theme: '소주제',
+    question_title: '문제제목',
+    question_text: '문제내용',
+    answer: '정답',
+    explanation: '해설',
+  };
+
   /* =====================
      렌더
   ===================== */
   return (
-    <ScrollView horizontal>
-      <View>
-        {/* 상단 헤더 */}
-        <View style={styles.topHeader}>
-          <Text style={styles.pageTitle}>OX 문제</Text>
+    <View style={{ flex: 1, backgroundColor: '#fff', }}>
+      {/* 상단 헤더 */}
 
-          <Pressable style={styles.uploadButton} onPress={handleOxUpload}>
-            <Text style={styles.uploadButtonText}>OX 문제 업로드</Text>
-          </Pressable>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Text style={styles.pageTitle}>OX 문제 업로드</Text>
 
-          {Platform.OS === 'web' && (
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".xlsx,.xls"
-              style={{ display: 'none' }}
-              onChange={handleFileChange}
-            />
-          )}
-        </View>
-
-        {/* 테이블 */}
-        <View style={styles.sheet}>
-          {/* Header */}
-          <View style={styles.row}>
-            {columns.map(col => (
-              <Pressable
-                key={col}
-                style={[
-                  styles.cell,
-                  styles.header,
-                  { width: columnWidths[col] },
-                ]}
-                onPress={() => toggleSort(col)}
-              >
-                <Text style={styles.headerText}>
-                  {col.toUpperCase()}
-                  {renderSortIcon(col)}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-
-          {/* Body */}
-          <ScrollView style={styles.body}>
-            {data.map((row, rowIndex) => (
-              <View key={rowIndex} style={styles.row}>
-                {columns.map(col => {
-                  const isActive =
-                    activeCell?.row === rowIndex &&
-                    activeCell?.col === col;
-
-                  const isPreview =
-                    dragStart.current &&
-                    previewEndRow !== null &&
-                    dragStart.current.col === col &&
-                    rowIndex > dragStart.current.row &&
-                    rowIndex <= previewEndRow;
-
-                  return (
-                    <View
-                      key={col}
-                      style={[
-                        styles.cell,
-                        { width: columnWidths[col] },
-                        isActive && styles.activeCell,
-                        isPreview && styles.previewCell,
-                      ]}
-                      onMouseEnter={
-                        Platform.OS === 'web'
-                          ? () => setPreviewEndRow(rowIndex)
-                          : undefined
-                      }
-                    >
-                      {col === 'answer' ? (
-                        <Pressable
-                          style={styles.checkboxWrapper}
-                          onPress={() =>
-                            updateCell(rowIndex, 'answer', !row.answer)
-                          }
-                        >
-                          <View
-                            style={[
-                              styles.checkbox,
-                              row.answer && styles.checkboxChecked,
-                            ]}
-                          >
-                            {row.answer && (
-                              <Text style={styles.checkMark}>✓</Text>
-                            )}
-                          </View>
-                        </Pressable>
-                      ) : (
-                        <TextInput
-                          value={row[col]}
-                          onFocus={() =>
-                            setActiveCell({ row: rowIndex, col })
-                          }
-                          onChangeText={v =>
-                            updateCell(rowIndex, col, v)
-                          }
-                          style={styles.input}
-                        />
-                      )}
-
-                      {isActive && col !== 'answer' && (
-                        <Pressable
-                          style={styles.fillHandle}
-                          onPressIn={() => {
-                            dragStart.current = { row: rowIndex, col };
-                            setPreviewEndRow(rowIndex);
-                          }}
-                          onPressOut={() => {
-                            applyFill();
-                            dragStart.current = null;
-                            setPreviewEndRow(null);
-                          }}
-                        />
-                      )}
-                    </View>
-                  );
-                })}
-              </View>
-            ))}
-          </ScrollView>
+        <View style={styles.teacherBadge}>
+          <Text style={styles.teacherBadgeText}>관리자 전용 화면</Text>
         </View>
       </View>
-    </ScrollView>
+
+      <View style={styles.gridHeader}>
+        <Pressable style={styles.uploadButton} onPress={handleOxUpload}>
+          <Text style={styles.uploadButtonText}>엑셀 업로드</Text>
+        </Pressable>
+
+        <Pressable style={styles.uploadButton} onPress={showPreparing}>
+          <Text style={styles.uploadButtonText}>PDF 업로드</Text>
+        </Pressable>
+
+        <Pressable style={styles.subButton} onPress={showPreparing}>
+          <Text style={styles.subButtonText}>저장</Text>
+        </Pressable>
+
+      </View>
+
+      {Platform.OS === 'web' && (
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".xlsx,.xls"
+          style={{ display: 'none' }}
+          onChange={handleFileChange}
+        />
+      )}
+
+
+      {/* 테이블 */}
+      <View style={styles.sheet}>
+        {/* Header */}
+        <View style={[styles.row, styles.headerRow]}>
+          {columns.map(col => (
+            <Pressable
+              key={col}
+              style={[
+                styles.cell,
+                styles.header,
+                { flex: columnFlex[col] },
+              ]}
+              onPress={() => toggleSort(col)}
+            >
+              <Text style={styles.headerText}>
+                {columnLabels[col]}
+                {renderSortIcon(col)}
+              </Text>
+
+            </Pressable>
+          ))}
+        </View>
+
+        {/* Body */}
+        <ScrollView style={styles.body}>
+          {data.map((row, rowIndex) => (
+            <View key={rowIndex} style={styles.row}>
+              {columns.map(col => {
+                const isActive =
+                  activeCell?.row === rowIndex &&
+                  activeCell?.col === col;
+
+                const isPreview =
+                  dragStart.current &&
+                  previewEndRow !== null &&
+                  dragStart.current.col === col &&
+                  rowIndex > dragStart.current.row &&
+                  rowIndex <= previewEndRow;
+
+                return (
+                  <View
+                    key={col}
+                    style={[
+                      styles.cell,
+                      { flex: columnFlex[col] },
+                      isActive && styles.activeCell,
+                      isPreview && styles.previewCell,
+                    ]}
+                    onMouseEnter={
+                      Platform.OS === 'web'
+                        ? () => setPreviewEndRow(rowIndex)
+                        : undefined
+                    }
+                  >
+                    {col === 'answer' ? (
+                      <Pressable
+                        style={styles.checkboxWrapper}
+                        onPress={() =>
+                          updateCell(rowIndex, 'answer', !row.answer)
+                        }
+                      >
+                        <View
+                          style={[
+                            styles.checkbox,
+                            row.answer && styles.checkboxChecked,
+                          ]}
+                        >
+                          {row.answer && (
+                            <Text style={styles.checkMark}>✓</Text>
+                          )}
+                        </View>
+                      </Pressable>
+                    ) : (
+                      <TextInput
+                        value={row[col]}
+                        onFocus={() =>
+                          setActiveCell({ row: rowIndex, col })
+                        }
+                        onChangeText={v =>
+                          updateCell(rowIndex, col, v)
+                        }
+                        style={styles.input}
+                      />
+                    )}
+
+                    {isActive && col !== 'answer' && (
+                      <Pressable
+                        style={styles.fillHandle}
+                        onPressIn={() => {
+                          dragStart.current = { row: rowIndex, col };
+                          setPreviewEndRow(rowIndex);
+                        }}
+                        onPressOut={() => {
+                          applyFill();
+                          dragStart.current = null;
+                          setPreviewEndRow(null);
+                        }}
+                      />
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    </View>
   );
 }
 
@@ -323,20 +355,56 @@ export default function OxQuestionUpload() {
    스타일
 ===================== */
 const styles = StyleSheet.create({
-  topHeader: {
-    position: 'absolute',
-    top: 40,
-    left: 40,
-    right: 40,
+  gridHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    zIndex: 10,
+    justifyContent: 'flex-end',
+    marginTop: 20,
+    marginRight: 30,
+    gap: 8,
   },
+
+  headerRow: {
+    paddingRight: 18,
+  },
+
+  teacherBadge: {
+    marginLeft: 12,
+    backgroundColor: '#edf2ff',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+
+  teacherBadgeText: {
+    fontSize: 12,
+    color: '#2a62ff',
+    fontWeight: '600',
+  },
+
+
   pageTitle: {
     fontSize: 30,
     fontWeight: '900',
+    marginTop: 10,
+    marginLeft: 20,
   },
+
+  subButton: {
+    borderWidth: 1,
+    borderColor: '#d0d0d0',
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 6,
+    backgroundColor: '#fff',
+  },
+
+  subButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#444',
+  },
+
+
   uploadButton: {
     backgroundColor: '#2a62ff',
     paddingHorizontal: 16,
@@ -349,7 +417,7 @@ const styles = StyleSheet.create({
   },
 
   sheet: {
-    marginTop: 150,
+    // marginTop: 150,
     padding: 12,
     backgroundColor: '#fdfdfd',
   },

@@ -13,7 +13,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'ox 퀴즈',
+          title: 'OX 문제',
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home-outline" size={size} color={color} />
@@ -49,6 +49,7 @@ export default function TabLayout() {
         options={{
           title: '설정',
           headerShown: false,
+          href: null,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="settings-outline" size={size} color={color} />
           ),

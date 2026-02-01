@@ -92,7 +92,7 @@ export default function OxQuestion() {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" />
-        <Text style={styles.muted}>Loading questions…</Text>
+        <Text style={styles.muted}>문제를 불러오고 있어요</Text>
       </View>
     );
   }
@@ -164,7 +164,7 @@ export default function OxQuestion() {
         </Pressable>
 
         <View style={styles.titleWrap}>
-          <Text style={styles.headerTitle}>OX 퀴즈</Text>
+          <Text style={styles.headerTitle}>OX 문제</Text>
           {!!subjectName && (
             <Text style={styles.subjectName} numberOfLines={1} ellipsizeMode="tail">
               {' · '}{subjectName}
