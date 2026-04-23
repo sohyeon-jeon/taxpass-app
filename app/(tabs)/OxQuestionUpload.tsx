@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import * as XLSX from 'xlsx';
 
+import { useSession } from '../../src/lib/SessionProvider';
+
 /* =====================
    타입 정의
 ===================== */
@@ -53,6 +55,10 @@ const toBooleanAnswer = (v: any): boolean => {
    컴포넌트
 ===================== */
 export default function OxQuestionUpload() {
+
+  const { token } = useSession();
+
+
   const [data, setData] = useState<Row[]>(
     Array.from({ length: 50 }).map(() => ({
       main_theme: '',
@@ -238,6 +244,11 @@ export default function OxQuestionUpload() {
     input.click();
   };
 
+
+  
+
+
+
   const startUpload = async () => {
     if (!selectedPdf) return;
 
@@ -249,6 +260,8 @@ export default function OxQuestionUpload() {
       alert('시작/끝 페이지를 올바르게 입력하세요 (예: 1 ~ 10)');
       return;
     }
+
+    
 
     try {
       setShowModal(false);
@@ -267,77 +280,106 @@ export default function OxQuestionUpload() {
         }))
       );
 
+      // const formData = new FormData();
+      // formData.append('file', selectedPdf);
+      // formData.append('startPage', String(s));
+      // formData.append('endPage', String(e));
+
+      // const res = await fetch(`${process.env.EXPO_PUBLIC_API_KEY}/api/ocr/upload`, {
+      //   method: 'POST',
+      //   body: formData,
+      // });
+
       const formData = new FormData();
-      formData.append('file', selectedPdf);
-      formData.append('startPage', String(s));
-      formData.append('endPage', String(e));
+formData.append('file', selectedPdf);
+formData.append('startPage', String(s));
+formData.append('endPage', String(e));
 
-      const res = await fetch(`${process.env.EXPO_PUBLIC_API_KEY}/api/ocr/upload`, {
-        method: 'POST',
-        body: formData,
-      });
+const baseUrl = process.env.EXPO_PUBLIC_API_KEY;
 
-      if (!res.ok) {
-        const text = await res.text().catch(() => '');
-        throw new Error(`upload failed: ${res.status} ${text}`);
-      }
+const headers = new Headers();
+if (token) {
+  headers.append('Authorization', `Bearer ${token}`);
+}
 
+const res = await fetch(`${baseUrl}/api/ocr/upload`, {
+  method: 'POST',
+  headers, 
+  body: formData,
+});
+
+
+
+   if (!res.ok) {
+  const errorData = await res.json(); 
+  throw new Error(errorData.message); 
+}
       const result = await res.json();   
       pollProgress(result.jobId);       
-    } catch (err) {
-      console.error(err);
-      alert('업로드 실패');
-      setUploading(false);
-    }
+    } catch (err: any) {
+  console.error(err);
+  alert(err.message || '업로드 실패');
+  setUploading(false);
+}
   };
 
 
-  const pollProgress = (jobId: string) => {
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(
-          `${process.env.EXPO_PUBLIC_API_KEY}/api/ocr/progress/${jobId}`
-        );
+ const pollProgress = (jobId: string) => {
+  const interval = setInterval(async () => {
+    try {
+      const baseUrl = process.env.EXPO_PUBLIC_API_KEY;
 
-        if (!res.ok) throw new Error(`progress failed: ${res.status}`);
+      const headers = new Headers();
+      if (token) {
+        headers.append('Authorization', `Bearer ${token}`); //
+      }
 
-        const result = await res.json(); // { progress: number, message: string }
+      const res = await fetch(
+        `${baseUrl}/api/ocr/progress/${jobId}`,
+        { headers } 
+      );
 
-        setProgress(result.progress ?? 0);
-        setProgressMessage(result.message ?? '');
+      if (!res.ok) throw new Error(`progress failed: ${res.status}`);
 
-        if ((result.progress ?? 0) >= 100) {
-          clearInterval(interval);
-          setUploading(false);
+      const result = await res.json();
 
-          if (result.result) {
-            const jsonData =
-              typeof result.result === 'string'
-                ? JSON.parse(result.result)
-                : result.result;
+      setProgress(result.progress ?? 0);
+      setProgressMessage(result.message ?? '');
 
-            const rows: Row[] = jsonData.map((item: any) => ({
-              main_theme: '',
-              theme: '',
-              question_title: '',
-              question_text: item.question_text ?? '',
-              answer: toBooleanAnswer(item.answer),
-              explanation: item.explanation ?? '',
-            }));
-
-            setData(rows);
-          }
-
-          alert('OCR 작업이 성공적으로 완료되었습니다.');
-        }
-      } catch (err) {
-        console.error(err);
+      if ((result.progress ?? 0) >= 100) {
         clearInterval(interval);
         setUploading(false);
-        alert('진행 상황 조회 중 오류가 발생했습니다.');
+
+        if (result.result) {
+          const jsonData =
+            typeof result.result === 'string'
+              ? JSON.parse(result.result)
+              : result.result;
+
+          const rows: Row[] = jsonData.map((item: any) => ({
+            main_theme: '',
+            theme: '',
+            question_title: '',
+            question_text: item.question_text ?? '',
+            answer: toBooleanAnswer(item.answer),
+            explanation: item.explanation ?? '',
+          }));
+
+          setData(rows);
+        }
+
+        alert('OCR 작업이 성공적으로 완료되었습니다.');
       }
-    }, 1000);
-  };
+    } catch (err: any) {
+      console.error(err);
+      clearInterval(interval);
+      setUploading(false);
+
+
+      alert(err.message || '진행 상황 조회 중 오류가 발생했습니다.');
+    }
+  }, 1000);
+};
 
 
 
@@ -360,7 +402,7 @@ export default function OxQuestionUpload() {
 
 
     <View style={{ flex: 1, backgroundColor: '#fff', }}>
-      {/* 🔥 페이지 입력 모달 */}
+      {/*  페이지 입력 모달 */}
       {showModal && (
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
